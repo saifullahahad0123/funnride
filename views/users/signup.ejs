@@ -76,60 +76,50 @@ required
 
 <div class="mb-3">
 
-<label class="form-label fw-bold">
-Choose Account Type
-</label>
+    <label class="form-label fw-bold">
+        Choose Account Type
+    </label>
 
-<div class="row">
+    <div class="form-check">
 
-<div class="col-md-6 mb-2">
+        <input
+            class="form-check-input"
+            type="radio"
+            name="role"
+            id="passenger"
+            value="passenger"
+            checked>
 
-<input
-type="radio"
-class="btn-check"
-name="role"
-id="passenger"
-value="passenger"
-checked>
+        <label
+            class="form-check-label"
+            for="passenger">
 
-<label
-class="btn btn-outline-primary w-100 py-3"
-for="passenger">
+            <i class="bi bi-person-fill text-primary"></i>
+            Passenger
 
-<i class="bi bi-person-fill fs-2"></i>
-<br>
-<strong>Passenger</strong>
-<br>
-<small>Book transport easily</small>
+        </label>
 
-</label>
+    </div>
 
-</div>
+    <div class="form-check mt-2">
 
-<div class="col-md-6 mb-2">
+        <input
+            class="form-check-input"
+            type="radio"
+            name="role"
+            id="driver"
+            value="driver">
 
-<input
-type="radio"
-class="btn-check"
-name="role"
-id="driver"
-value="driver">
+        <label
+            class="form-check-label"
+            for="driver">
 
-<label
-class="btn btn-outline-success w-100 py-3"
-for="driver">
+            <i class="bi bi-car-front-fill text-success"></i>
+            Driver
 
-<i class="bi bi-car-front-fill fs-2"></i>
-<br>
-<strong>Driver</strong>
-<br>
-<small>Provide transport service</small>
+        </label>
 
-</label>
-
-</div>
-
-</div>
+    </div>
 
 </div>
 <div class="mb-3">
