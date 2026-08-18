@@ -19,6 +19,12 @@ ref:"Route"
 
 passengerName:String,
 
+pickupLocation: {
+    type: String,
+    required: true,
+    trim: true
+},
+
 phoneNumber:Number,
 arrivalTime:String,
 

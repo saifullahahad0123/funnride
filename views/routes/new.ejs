@@ -11,12 +11,17 @@
                 <div class="card-header bg-primary text-white">
 
                     <h2 class="mb-0">
-                         Create Route
+                        Create Route
                     </h2>
 
                 </div>
 
+
                 <div class="card-body">
+
+                    <!-- ============================= -->
+                    <!-- VEHICLE INFORMATION -->
+                    <!-- ============================= -->
 
                     <form action="/routes" method="POST">
 
@@ -36,6 +41,7 @@
 
                         </div>
 
+
                         <div class="mb-3">
 
                             <label class="form-label">
@@ -51,6 +57,7 @@
                             >
 
                         </div>
+
 
                         <div class="mb-3">
 
@@ -68,6 +75,7 @@
 
                         </div>
 
+
                         <div class="mb-4">
 
                             <label class="form-label">
@@ -79,97 +87,138 @@
                                 name="totalSeats"
                                 class="form-control"
                                 placeholder="Enter Seats"
+                                min="1"
                                 required
                             >
 
                         </div>
 
-                    <hr>
 
-<h4 class="mb-3">
-    <i class="bi bi-geo-alt-fill"></i>
-    Route Locations
-</h4>
+                        <hr>
 
-<div id="locationContainer">
 
-    <div class="locationRow row g-2 align-items-center mb-3">
+                        <!-- ============================= -->
+                        <!-- LOCATIONS -->
+                        <!-- ============================= -->
 
-        <div class="col-10 col-md-11">
+                        <h4 class="mb-3">
 
-            <input
-                type="text"
-                class="form-control locationInput"
-                placeholder="Enter Location"
-                required>
+                            <i class="bi bi-geo-alt-fill"></i>
 
-        </div>
+                            Route Locations
 
-        <div class="col-2 col-md-1">
+                        </h4>
 
-            <button
-                type="button"
-                class="btn btn-danger removeLocation w-100">
 
-                <i class="bi bi-x-lg"></i>
+                        <div id="locationContainer">
 
-            </button>
+                            <div class="locationRow row g-2 align-items-center mb-3">
 
-        </div>
+                                <div class="col-10 col-md-11">
 
-    </div>
+                                    <input
+                                        type="text"
+                                        class="form-control locationInput"
+                                        placeholder="Enter Location"
+                                        required
+                                    >
 
-</div>
+                                </div>
 
-<div class="row g-2 mb-4">
 
-    <div class="col-12 col-md-6">
+                                <div class="col-2 col-md-1">
 
-        <button
-            type="button"
-            class="btn btn-secondary w-100"
-            onclick="addLocation()">
+                                    <button
+                                        type="button"
+                                        class="btn btn-danger removeLocation w-100"
+                                    >
 
-            <i class="bi bi-plus-circle"></i>
-            Add Location
+                                        <i class="bi bi-x-lg"></i>
 
-        </button>
+                                    </button>
 
-    </div>
+                                </div>
 
-    <div class="col-12 col-md-6">
+                            </div>
 
-        <button
-            type="button"
-            class="btn btn-primary w-100"
-            onclick="generateRoutes()">
+                        </div>
 
-            <i class="bi bi-diagram-3"></i>
-            Generate Combinations
 
-        </button>
+                        <!-- ============================= -->
+                        <!-- LOCATION BUTTONS -->
+                        <!-- ============================= -->
 
-    </div>
+                        <div class="row g-2 mb-4">
 
-</div>
+                            <div class="col-12 col-md-6">
 
-<hr>
+                                <button
+                                    type="button"
+                                    class="btn btn-secondary w-100"
+                                    onclick="addLocation()"
+                                >
 
-<h4 class="mb-3">
-    Generated Routes
-</h4>
+                                    <i class="bi bi-plus-circle"></i>
 
-<div id="routesContainer" class="mb-3"></div>
+                                    Add Location
 
-<br>
+                                </button>
 
-<button
-type="submit"
-class="btn btn-success w-100">
+                            </div>
 
-Create Route
 
-</button>
+                            <div class="col-12 col-md-6">
+
+                                <button
+                                    type="button"
+                                    class="btn btn-primary w-100"
+                                    onclick="generateRoutes()"
+                                >
+
+                                    <i class="bi bi-diagram-3"></i>
+
+                                    Generate Combinations
+
+                                </button>
+
+                            </div>
+
+                        </div>
+
+
+                        <hr>
+
+                        <h4 class="mb-3">
+
+                            Generated Routes
+
+                        </h4>
+
+
+                        <div
+                            id="routesContainer"
+                            class="mb-3"
+                        ></div>
+
+
+                        <hr>
+
+
+                        <!-- ============================= -->
+                        <!-- CREATE ROUTE -->
+                        <!-- ============================= -->
+
+                        <button
+                            type="submit"
+                            class="btn btn-success w-100"
+                        >
+
+                            <i class="bi bi-check-circle"></i>
+
+                            Create Route
+
+                        </button>
+
 
                     </form>
 
@@ -185,44 +234,52 @@ Create Route
 
 
 
-
-
 <script>
 
-function addLocation(){
+
+// =====================================================
+// ADD LOCATION
+// =====================================================
+
+function addLocation() {
 
     const container =
-    document.getElementById("locationContainer");
+        document.getElementById("locationContainer");
+
 
     const html = `
 
-    <div class="locationRow row mb-3">
+        <div class="locationRow row g-2 align-items-center mb-3">
 
-        <div class="col-md-10">
+            <div class="col-10 col-md-11">
 
-            <input
-                type="text"
-                class="form-control locationInput"
-                placeholder="Enter Location"
-                required>
+                <input
+                    type="text"
+                    class="form-control locationInput"
+                    placeholder="Enter Location"
+                    required
+                >
+
+            </div>
+
+
+            <div class="col-2 col-md-1">
+
+                <button
+                    type="button"
+                    class="btn btn-danger removeLocation w-100"
+                >
+
+                    <i class="bi bi-x-lg"></i>
+
+                </button>
+
+            </div>
 
         </div>
-
-        <div class="col-md-2">
-
-            <button
-                type="button"
-                class="btn btn-danger removeLocation w-100">
-
-                <i class="bi bi-x-lg"></i>
-
-            </button>
-
-        </div>
-
-    </div>
 
     `;
+
 
     container.insertAdjacentHTML(
         "beforeend",
@@ -231,148 +288,262 @@ function addLocation(){
 
 }
 
-document.addEventListener("click",function(e){
 
-    if(e.target.closest(".removeLocation")){
 
-        const rows =
-        document.querySelectorAll(".locationRow");
+// =====================================================
+// REMOVE LOCATION
+// =====================================================
 
-        if(rows.length===1){
+document.addEventListener(
+    "click",
+    function (e) {
 
-            alert("Minimum one location required.");
+        if (
+            e.target.closest(".removeLocation")
+        ) {
 
-            return;
+            const rows =
+                document.querySelectorAll(
+                    ".locationRow"
+                );
+
+
+            // Minimum one location
+            if (rows.length === 1) {
+
+                alert(
+                    "Minimum one location required."
+                );
+
+                return;
+            }
+
+
+            e.target
+                .closest(".locationRow")
+                .remove();
 
         }
 
-        e.target
-        .closest(".locationRow")
-        .remove();
-
     }
+);
 
-});
 
+
+// =====================================================
+// GENERATE ROUTES
+// =====================================================
 
 function generateRoutes() {
 
     const routesContainer =
-    document.getElementById("routesContainer");
+        document.getElementById(
+            "routesContainer"
+        );
 
-    if(routesContainer.children.length>0){
 
-        if(!confirm("Generate again? Existing generated routes will be removed.")){
+    // Check existing routes
+    if (
+        routesContainer.children.length > 0
+    ) {
+
+        if (
+            !confirm(
+                "Generate again? Existing generated routes will be removed."
+            )
+        ) {
+
             return;
+
         }
 
     }
 
-    routesContainer.innerHTML="";
 
+    routesContainer.innerHTML = "";
+
+
+    // Get locations
     const inputs =
-    document.querySelectorAll(".locationInput");
+        document.querySelectorAll(
+            ".locationInput"
+        );
+
 
     let locations = [];
 
-    inputs.forEach(input => {
 
-        if (input.value.trim() !== "") {
+    inputs.forEach(
+        input => {
 
-            locations.push(input.value.trim());
+            const value =
+                input.value.trim();
+
+
+            if (value !== "") {
+
+                locations.push(value);
+
+            }
 
         }
+    );
 
-    });
 
+    // Minimum 2 locations
     if (locations.length < 2) {
 
-        alert("Please add at least 2 locations.");
+        alert(
+            "Please add at least 2 locations."
+        );
 
         return;
 
     }
 
-    for (let i = 0; i < locations.length - 1; i++) {
-
-        for (let j = i + 1; j < locations.length; j++) {
-
-            routesContainer.insertAdjacentHTML("beforeend", `
-
-            <div class="generatedRoute card p-3 mb-3 shadow-sm">
-
-                <div class="row">
-
-                    <div class="col-md-3 mb-2">
-
-                        <label>From</label>
-
-                        <input
-                            type="text"
-                            name="from[]"
-                            class="form-control"
-                            value="${locations[i]}"
-                            readonly>
-
-                    </div>
-
-                    <div class="col-md-3 mb-2">
-
-                        <label>To</label>
-
-                        <input
-                            type="text"
-                            name="to[]"
-                            class="form-control"
-                            value="${locations[j]}"
-                            readonly>
-
-                    </div>
-
-                    <div class="col-md-2 mb-2">
-
-                        <label>Fare</label>
-
-                        <input
-                            type="number"
-                            name="fare[]"
-                            class="form-control"
-                            placeholder="Fare"
-                            required>
-
-                    </div>
-
-                    <div class="col-md-2 mb-2">
-
-                        <label>Arrival Time</label>
-
-                        <input
-                            type="text"
-                            name="time[]"
-                            placeholder="14:30"
-                            class="form-control"
-                            required>
 
 
-                    </div>
+    // =================================================
+    // GENERATE ALL COMBINATIONS
+    // =================================================
 
-                    <div class="col-md-2 mb-2 d-flex align-items-end">
+    for (
+        let i = 0;
+        i < locations.length - 1;
+        i++
+    ) {
 
-                        <button
-                            type="button"
-                            class="btn btn-danger w-100 removeGenerated">
+        for (
+            let j = i + 1;
+            j < locations.length;
+            j++
+        ) {
 
-                            <i class="bi bi-x-lg"></i>
 
-                        </button>
+            routesContainer.insertAdjacentHTML(
+                "beforeend",
+
+                `
+
+                <div
+                    class="generatedRoute card p-3 mb-3 shadow-sm"
+                    data-from="${escapeHtml(locations[i])}"
+                    data-to="${escapeHtml(locations[j])}"
+                >
+
+
+                    <div class="row">
+
+
+                        <!-- FROM -->
+
+                        <div class="col-md-3 mb-2">
+
+                            <label class="form-label">
+                                From
+                            </label>
+
+
+                            <input
+                                type="text"
+                                name="from[]"
+                                class="form-control"
+                                value="${escapeHtml(locations[i])}"
+                                readonly
+                            >
+
+                        </div>
+
+
+
+                        <!-- TO -->
+
+                        <div class="col-md-3 mb-2">
+
+                            <label class="form-label">
+                                To
+                            </label>
+
+
+                            <input
+                                type="text"
+                                name="to[]"
+                                class="form-control"
+                                value="${escapeHtml(locations[j])}"
+                                readonly
+                            >
+
+                        </div>
+
+
+
+                        <!-- FARE -->
+
+                        <div class="col-md-2 mb-2">
+
+                            <label class="form-label">
+                                Fare
+                            </label>
+
+
+                            <input
+                                type="number"
+                                name="fare[]"
+                                class="form-control"
+                                placeholder="Fare"
+                                min="0"
+                                required
+                            >
+
+                        </div>
+
+
+
+                        <!-- TIME -->
+
+                        <div class="col-md-2 mb-2">
+
+                            <label class="form-label">
+                                Time
+                            </label>
+
+
+                            <input
+                                type="text"
+                                name="time[]"
+                                placeholder="14:30"
+                                class="form-control routeTime"
+                                required
+                            >
+
+                        </div>
+
+
+
+                        <!-- REMOVE -->
+
+                        <div
+                            class="col-md-2 mb-2 d-flex align-items-end"
+                        >
+
+                            <button
+                                type="button"
+                                class="btn btn-danger w-100 removeGenerated"
+                            >
+
+                                <i class="bi bi-x-lg"></i>
+
+                            </button>
+
+                        </div>
+
 
                     </div>
 
                 </div>
 
-            </div>
-
-            `);
+                `
+            );
 
         }
 
@@ -380,19 +551,155 @@ function generateRoutes() {
 
 }
 
-// Remove Generated Route
-document.addEventListener("click", function (e) {
 
-    if (e.target.closest(".removeGenerated")) {
 
-        e.target
-        .closest(".generatedRoute")
-        .remove();
+// =====================================================
+// TIME AUTO COPY
+// =====================================================
+//
+// Example:
+//
+// Wagub → Batpora       02:30
+// Wagub → Krankshivan   02:30  AUTO
+// Wagub → Takyabal      02:30  AUTO
+//
+// Batpora → Krankshivan 02:35
+// Batpora → Takyabal    02:35  AUTO
+//
+// =====================================================
+
+document.addEventListener(
+    "input",
+    function (e) {
+
+
+        // Only time inputs
+        if (
+            !e.target.classList.contains(
+                "routeTime"
+            )
+        ) {
+
+            return;
+
+        }
+
+
+        const currentRoute =
+            e.target.closest(
+                ".generatedRoute"
+            );
+
+
+        if (!currentRoute) {
+
+            return;
+
+        }
+
+
+        const time =
+            e.target.value;
+
+
+        if (!time) {
+
+            return;
+
+        }
+
+
+        // Get FROM location
+        const fromLocation =
+            currentRoute.dataset.from;
+
+
+
+        // Find all generated routes
+        document
+            .querySelectorAll(
+                ".generatedRoute"
+            )
+            .forEach(
+                route => {
+
+
+                    const routeFrom =
+                        route.dataset.from;
+
+
+                    // SAME FROM LOCATION
+                    if (
+                        routeFrom ===
+                        fromLocation
+                    ) {
+
+
+                        const timeInput =
+                            route.querySelector(
+                                ".routeTime"
+                            );
+
+
+                        if (timeInput) {
+
+                            timeInput.value =
+                                time;
+
+                        }
+
+                    }
+
+                }
+            );
 
     }
+);
 
-});
+
+
+// =====================================================
+// REMOVE GENERATED ROUTE
+// =====================================================
+
+document.addEventListener(
+    "click",
+    function (e) {
+
+
+        if (
+            e.target.closest(
+                ".removeGenerated"
+            )
+        ) {
+
+
+            e.target
+                .closest(
+                    ".generatedRoute"
+                )
+                .remove();
+
+        }
+
+    }
+);
+
+
+
+// =====================================================
+// HTML ESCAPE
+// =====================================================
+
+function escapeHtml(value) {
+
+    return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+
+}
 
 </script>
-
-

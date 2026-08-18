@@ -12,8 +12,9 @@ const stopSchema = new mongoose.Schema({
 
 });
 
-const routeSchema = new mongoose.Schema({
 
+const routeSchema = new mongoose.Schema({
+                                                                                
     driver:{
         type:mongoose.Schema.Types.ObjectId,
         ref:"User"

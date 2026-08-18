@@ -285,4 +285,302 @@ onclick="return confirm('Delete this route?')"
 
 </div>
 
+
 </div>
+
+
+
+<!-- ==========================================
+     NOTIFICATION SOUND
+========================================== -->
+
+<audio
+    id="notificationSound"
+    preload="auto">
+    <source
+        src="/sounds/notification.mp3"
+        type="audio/mpeg">
+</audio>
+
+
+<!-- ==========================================
+     SOCKET.IO
+========================================== -->
+
+<script src="/socket.io/socket.io.js"></script>
+
+
+<script>
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        console.log(
+            "Driver dashboard loaded"
+        );
+
+
+        // ======================================
+        // SOCKET CONNECTION
+        // ======================================
+
+        const socket = io();
+
+
+        socket.on(
+            "connect",
+            function () {
+
+                console.log(
+                    "✅ Socket connected:",
+                    socket.id
+                );
+
+
+                // ==================================
+                // DRIVER ID
+                // ==================================
+
+                const driverId =
+                    "<%= currentUser._id %>";
+
+
+                console.log(
+                    "🚗 Driver ID:",
+                    driverId
+                );
+
+
+                // Join driver's private room
+                socket.emit(
+                    "join",
+                    driverId
+                );
+
+
+                console.log(
+                    "📢 Joining driver room:",
+                    driverId
+                );
+
+            }
+        );
+
+
+        // ======================================
+        // SOUND ELEMENT
+        // ======================================
+
+        const sound =
+            document.getElementById(
+                "notificationSound"
+            );
+
+
+        if (!sound) {
+
+            console.error(
+                "❌ notificationSound element not found"
+            );
+
+            return;
+
+        }
+
+
+        sound.volume = 1;
+
+
+        // ======================================
+        // UNLOCK SOUND
+        // ======================================
+
+        let soundUnlocked = false;
+
+
+        async function unlockSound() {
+
+            if (soundUnlocked) {
+
+                return;
+
+            }
+
+
+            try {
+
+                /*
+                 * Play the sound silently once.
+                 * This tells Chrome that the user
+                 * has interacted with the page.
+                 */
+
+                sound.volume = 0;
+
+                await sound.play();
+
+                sound.pause();
+
+                sound.currentTime = 0;
+
+                sound.volume = 1;
+
+                soundUnlocked = true;
+
+
+                console.log(
+                    "🔊 SOUND UNLOCKED"
+                );
+
+            }
+
+            catch (error) {
+
+                console.log(
+                    "⚠️ Sound not unlocked yet"
+                );
+
+            }
+
+        }
+
+
+        // Any user interaction can unlock audio
+
+        document.addEventListener(
+            "click",
+            unlockSound
+        );
+
+
+        document.addEventListener(
+            "touchstart",
+            unlockSound
+        );
+
+
+        document.addEventListener(
+            "keydown",
+            unlockSound
+        );
+
+
+        // ======================================
+        // NEW NOTIFICATION
+        // ======================================
+
+        socket.on(
+            "newNotification",
+            async function (data) {
+
+                console.log(
+                    "================================"
+                );
+
+                console.log(
+                    "🔔 NEW NOTIFICATION RECEIVED"
+                );
+
+                console.log(
+                    data
+                );
+
+                console.log(
+                    "================================"
+                );
+
+
+                // ==================================
+                // PLAY SOUND
+                // ==================================
+
+                try {
+
+                    sound.pause();
+
+                    sound.currentTime = 0;
+
+                    sound.volume = 1;
+
+
+                    await sound.play();
+
+
+                    console.log(
+                        "🔊🔊🔊 NOTIFICATION SOUND PLAYING"
+                    );
+
+
+                }
+
+                catch (error) {
+
+                    console.error(
+                        "❌ SOUND PLAY ERROR:",
+                        error
+                    );
+
+                }
+
+
+                // ==================================
+                // SHOW NOTIFICATION
+                // ==================================
+
+                if (data && data.message) {
+
+                    alert(
+                        "🔔 New Booking\n\n" +
+                        data.message
+                    );
+
+                }
+                else {
+
+                    alert(
+                        "🔔 New Booking Received"
+                    );
+
+                }
+
+            }
+        );
+
+
+        // ======================================
+        // SOCKET DISCONNECTED
+        // ======================================
+
+        socket.on(
+            "disconnect",
+            function () {
+
+                console.log(
+                    "❌ Socket disconnected"
+                );
+
+            }
+        );
+
+
+        // ======================================
+        // SOCKET ERROR
+        // ======================================
+
+        socket.on(
+            "connect_error",
+            function (error) {
+
+                console.error(
+                    "❌ Socket connection error:",
+                    error
+                );
+
+            }
+        );
+
+    }
+);
+
+</script>

@@ -1,219 +1,714 @@
 <% layout("/layouts/boilerplate") %>
 
-<div class="container mt-4">
+<div class="container py-4">
 
-<h2 class="mb-4">
-    <i class="bi bi-pencil-square"></i>
-    Edit Route
-</h2>
+    <div class="row justify-content-center">
 
-<form
-action="/routes/<%= route._id %>?_method=PUT"
-method="POST">
+        <div class="col-lg-10">
 
-    <input
-    type="text"
-    name="vehicleType"
-    value="<%= route.vehicleType %>"
-    class="form-control mb-3"
-    placeholder="Vehicle Type"
-    required>
+            <div class="card shadow-lg border-0">
 
-    <input
-    type="text"
-    name="vehicleNumber"
-    value="<%= route.vehicleNumber %>"
-    class="form-control mb-3"
-    placeholder="Vehicle Number"
-    required>
+                <!-- ================================= -->
+                <!-- HEADER -->
+                <!-- ================================= -->
 
-    <input
-    type="text"
-    name="contactNumber"
-    value="<%= route.contactNumber %>"
-    class="form-control mb-3"
-    placeholder="Contact Number"
-    required>
+                <div class="card-header bg-primary text-white">
 
-    <input
-    type="number"
-    name="totalSeats"
-    value="<%= route.totalSeats %>"
-    class="form-control mb-3"
-    placeholder="Total Seats"
-    required>
+                    <h2 class="mb-0">
 
-    <input
-    type="number"
-    name="availableSeats"
-    value="<%= route.availableSeats %>"
-    class="form-control mb-4"
-    placeholder="Available Seats"
-    required>
+                        <i class="bi bi-pencil-square"></i>
 
-    <h4 class="mb-3">
-        Route Segments
-    </h4>
+                        Edit Route
 
-    <div id="routesContainer">
+                    </h2>
 
-        <% route.stops.forEach((stop)=>{ %>
+                </div>
 
-        <div class="routeRow row align-items-end border rounded p-3 mb-3">
 
-            <div class="col-md-3 mb-2">
-                <label class="form-label">From</label>
-                <input
-                type="text"
-                name="from[]"
-                value="<%= stop.from %>"
-                class="form-control"
-                required>
-            </div>
+                <div class="card-body">
 
-            <div class="col-md-3 mb-2">
-                <label class="form-label">To</label>
-                <input
-                type="text"
-                name="to[]"
-                value="<%= stop.to %>"
-                class="form-control"
-                required>
-            </div>
 
-            <div class="col-md-2 mb-2">
-                <label class="form-label">Fare</label>
-                <input
-                type="number"
-                name="fare[]"
-                value="<%= stop.fare %>"
-                class="form-control"
-                required>
-            </div>
+                    <!-- ================================= -->
+                    <!-- FORM -->
+                    <!-- ================================= -->
 
-            <div class="col-md-2 mb-2">
-                <label class="form-label">Arrival Time</label>
-                  <input
-                    type="text"
-                    name="ArrivalTime[]"
-                    value="<%= stop.arrivalTime %>"
-                    class="form-control"
-                    required>
-            </div>
+                    <form
+                        action="/routes/<%= route._id %>?_method=PUT"
+                        method="POST"
+                    >
 
-            <div class="col-md-2 mb-2 text-center">
-                <button
-                type="button"
-                class="btn btn-danger removeRoute">
-                    <i class="bi bi-x-lg"></i>
-                </button>
+
+                        <!-- ================================= -->
+                        <!-- VEHICLE TYPE -->
+                        <!-- ================================= -->
+
+                        <div class="mb-3">
+
+                            <label class="form-label">
+                                Vehicle Type
+                            </label>
+
+                            <input
+                                type="text"
+                                name="vehicleType"
+                                value="<%= route.vehicleType %>"
+                                class="form-control"
+                                placeholder="Vehicle Type"
+                                required
+                            >
+
+                        </div>
+
+
+                        <!-- ================================= -->
+                        <!-- VEHICLE NUMBER -->
+                        <!-- ================================= -->
+
+                        <div class="mb-3">
+
+                            <label class="form-label">
+                                Vehicle Number
+                            </label>
+
+                            <input
+                                type="text"
+                                name="vehicleNumber"
+                                value="<%= route.vehicleNumber %>"
+                                class="form-control"
+                                placeholder="Vehicle Number"
+                                required
+                            >
+
+                        </div>
+
+
+                        <!-- ================================= -->
+                        <!-- CONTACT NUMBER -->
+                        <!-- ================================= -->
+
+                        <div class="mb-3">
+
+                            <label class="form-label">
+                                Contact Number
+                            </label>
+
+                            <input
+                                type="text"
+                                name="contactNumber"
+                                value="<%= route.contactNumber %>"
+                                class="form-control"
+                                placeholder="Contact Number"
+                                required
+                            >
+
+                        </div>
+
+
+                        <!-- ================================= -->
+                        <!-- TOTAL SEATS -->
+                        <!-- ================================= -->
+
+                        <div class="mb-3">
+
+                            <label class="form-label">
+                                Total Seats
+                            </label>
+
+                            <input
+                                type="number"
+                                name="totalSeats"
+                                value="<%= route.totalSeats %>"
+                                class="form-control"
+                                placeholder="Total Seats"
+                                min="1"
+                                required
+                            >
+
+                        </div>
+
+
+                        <!-- ================================= -->
+                        <!-- AVAILABLE SEATS -->
+                        <!-- ================================= -->
+
+                        <div class="mb-4">
+
+                            <label class="form-label">
+                                Available Seats
+                            </label>
+
+                            <input
+                                type="number"
+                                name="availableSeats"
+                                value="<%= route.availableSeats %>"
+                                class="form-control"
+                                placeholder="Available Seats"
+                                min="0"
+                                required
+                            >
+
+                        </div>
+
+
+                        <hr>
+
+
+                        <!-- ================================= -->
+                        <!-- ROUTE SEGMENTS -->
+                        <!-- ================================= -->
+
+                        <h4 class="mb-3">
+
+                            <i class="bi bi-diagram-3"></i>
+
+                            Route Segments
+
+                        </h4>
+
+
+                        <div
+                            id="routesContainer"
+                        >
+
+
+                            <% route.stops.forEach((stop, index) => { %>
+
+
+                                <div
+                                    class="routeRow row align-items-end border rounded p-3 mb-3 shadow-sm"
+                                    data-from="<%= stop.from %>"
+                                    data-to="<%= stop.to %>"
+                                >
+
+
+                                    <!-- FROM -->
+
+                                    <div class="col-md-3 mb-2">
+
+                                        <label class="form-label">
+                                            From
+                                        </label>
+
+                                        <input
+                                            type="text"
+                                            name="from[]"
+                                            value="<%= stop.from %>"
+                                            class="form-control fromInput"
+                                            required
+                                        >
+
+                                    </div>
+
+
+                                    <!-- TO -->
+
+                                    <div class="col-md-3 mb-2">
+
+                                        <label class="form-label">
+                                            To
+                                        </label>
+
+                                        <input
+                                            type="text"
+                                            name="to[]"
+                                            value="<%= stop.to %>"
+                                            class="form-control"
+                                            required
+                                        >
+
+                                    </div>
+
+
+                                    <!-- FARE -->
+
+                                    <div class="col-md-2 mb-2">
+
+                                        <label class="form-label">
+                                            Fare
+                                        </label>
+
+                                        <input
+                                            type="number"
+                                            name="fare[]"
+                                            value="<%= stop.fare %>"
+                                            class="form-control"
+                                            min="0"
+                                            required
+                                        >
+
+                                    </div>
+
+
+                                    <!-- TIME -->
+
+                                    <div class="col-md-2 mb-2">
+
+                                        <label class="form-label">
+                                            Arrival Time
+                                        </label>
+
+                                        <input
+                                            type="text"
+                                            name="ArrivalTime[]"
+                                            value="<%= stop.arrivalTime %>"
+                                            class="form-control routeTime"
+                                            required
+                                        >
+
+                                    </div>
+
+
+                                    <!-- REMOVE -->
+
+                                    <div
+                                        class="col-md-2 mb-2 text-center"
+                                    >
+
+                                        <button
+                                            type="button"
+                                            class="btn btn-danger removeRoute w-100"
+                                        >
+
+                                            <i class="bi bi-x-lg"></i>
+
+                                        </button>
+
+                                    </div>
+
+
+                                </div>
+
+
+                            <% }) %>
+
+
+                        </div>
+
+
+                        <!-- ================================= -->
+                        <!-- ADD ROUTE -->
+                        <!-- ================================= -->
+
+                        <button
+                            type="button"
+                            class="btn btn-primary mb-4"
+                            onclick="addRoute()"
+                        >
+
+                            <i class="bi bi-plus-circle-fill"></i>
+
+                            Add Route
+
+                        </button>
+
+
+                        <br>
+
+
+                        <!-- ================================= -->
+                        <!-- UPDATE -->
+                        <!-- ================================= -->
+
+                        <button
+                            type="submit"
+                            class="btn btn-success"
+                        >
+
+                            <i class="bi bi-check-circle-fill"></i>
+
+                            Update Route
+
+                        </button>
+
+
+                        <!-- ================================= -->
+                        <!-- CANCEL -->
+                        <!-- ================================= -->
+
+                        <a
+                            href="/driver/dashboard"
+                            class="btn btn-secondary"
+                        >
+
+                            Cancel
+
+                        </a>
+
+
+                    </form>
+
+                </div>
+
             </div>
 
         </div>
 
-        <% }) %>
-
     </div>
 
-    <button
-    type="button"
-    class="btn btn-primary mb-4"
-    onclick="addRoute()">
-
-        <i class="bi bi-plus-circle-fill"></i>
-        Add Route
-
-    </button>
-
-    <br>
-
-    <button
-    type="submit"
-    class="btn btn-success">
-
-        <i class="bi bi-check-circle-fill"></i>
-        Update Route
-
-    </button>
-
-    <a
-    href="/driver/dashboard"
-    class="btn btn-secondary">
-
-        Cancel
-
-    </a>
-
-</form>
-
 </div>
+
+
 
 <script>
 
-function addRoute(){
 
-const container=document.getElementById("routesContainer");
+// =====================================================
+// UPDATE DATA-FROM ATTRIBUTES
+// =====================================================
 
-container.insertAdjacentHTML("beforeend",`
+function updateRouteData() {
 
-<div class="routeRow row align-items-end border rounded p-3 mb-3">
+    document
+        .querySelectorAll(".routeRow")
+        .forEach(row => {
 
-<div class="col-md-3 mb-2">
-<label class="form-label">From</label>
-<input type="text" name="from[]" class="form-control" required>
-</div>
+            const fromInput =
+                row.querySelector(".fromInput");
 
-<div class="col-md-3 mb-2">
-<label class="form-label">To</label>
-<input type="text" name="to[]" class="form-control" required>
-</div>
+            const toInput =
+                row.querySelector(
+                    'input[name="to[]"]'
+                );
 
-<div class="col-md-2 mb-2">
-<label class="form-label">Fare</label>
-<input type="number" name="fare[]" class="form-control" required>
-</div>
+            if (fromInput) {
 
-<div class="col-md-2 mb-2">
-<label class="form-label">Arrival Time</label>
-<input type="text" name="ArrivalTime[]" class="form-control" required>
-</div>
+                row.dataset.from =
+                    fromInput.value.trim();
 
-<div class="col-md-2 mb-2 text-center">
+            }
 
-<button
-type="button"
-class="btn btn-danger removeRoute">
+            if (toInput) {
 
-<i class="bi bi-x-lg"></i>
+                row.dataset.to =
+                    toInput.value.trim();
 
-</button>
+            }
 
-</div>
-
-</div>
-
-`);
+        });
 
 }
 
-document.addEventListener("click",function(e){
 
-if(e.target.closest(".removeRoute")){
 
-const rows=document.querySelectorAll(".routeRow");
+// =====================================================
+// ADD NEW ROUTE
+// =====================================================
 
-if(rows.length===1){
+function addRoute() {
 
-alert("At least one route segment is required.");
+    const container =
+        document.getElementById(
+            "routesContainer"
+        );
 
-return;
+
+    container.insertAdjacentHTML(
+        "beforeend",
+
+        `
+
+        <div
+            class="routeRow row align-items-end border rounded p-3 mb-3 shadow-sm"
+        >
+
+
+            <!-- FROM -->
+
+            <div class="col-md-3 mb-2">
+
+                <label class="form-label">
+                    From
+                </label>
+
+                <input
+                    type="text"
+                    name="from[]"
+                    class="form-control fromInput"
+                    placeholder="From Location"
+                    required
+                >
+
+            </div>
+
+
+            <!-- TO -->
+
+            <div class="col-md-3 mb-2">
+
+                <label class="form-label">
+                    To
+                </label>
+
+                <input
+                    type="text"
+                    name="to[]"
+                    class="form-control"
+                    placeholder="To Location"
+                    required
+                >
+
+            </div>
+
+
+            <!-- FARE -->
+
+            <div class="col-md-2 mb-2">
+
+                <label class="form-label">
+                    Fare
+                </label>
+
+                <input
+                    type="number"
+                    name="fare[]"
+                    class="form-control"
+                    placeholder="Fare"
+                    min="0"
+                    required
+                >
+
+            </div>
+
+
+            <!-- TIME -->
+
+            <div class="col-md-2 mb-2">
+
+                <label class="form-label">
+                    Arrival Time
+                </label>
+
+                <input
+                    type="text"
+                    name="ArrivalTime[]"
+                    class="form-control routeTime"
+                    required
+                >
+
+            </div>
+
+
+            <!-- REMOVE -->
+
+            <div class="col-md-2 mb-2 text-center">
+
+                <button
+                    type="button"
+                    class="btn btn-danger removeRoute w-100"
+                >
+
+                    <i class="bi bi-x-lg"></i>
+
+                </button>
+
+            </div>
+
+
+        </div>
+
+        `
+    );
+
+
+    updateRouteData();
 
 }
 
-e.target.closest(".routeRow").remove();
 
-}
 
-});
+
+document.addEventListener(
+    "input",
+    function (e) {
+
+
+        // Only time fields
+        if (
+            !e.target.classList.contains(
+                "routeTime"
+            )
+        ) {
+
+            return;
+
+        }
+
+
+        const currentRoute =
+            e.target.closest(
+                ".routeRow"
+            );
+
+
+        if (!currentRoute) {
+
+            return;
+
+        }
+
+
+        const time =
+            e.target.value;
+
+
+        if (!time) {
+
+            return;
+
+        }
+
+
+        // Make sure data-from is current
+        updateRouteData();
+
+
+        // Get current FROM location
+        const fromLocation =
+            currentRoute.dataset.from;
+
+
+        if (!fromLocation) {
+
+            return;
+
+        }
+
+
+        // Find all routes
+        document
+            .querySelectorAll(
+                ".routeRow"
+            )
+            .forEach(
+                route => {
+
+
+                    const routeFrom =
+                        route.dataset.from;
+
+
+                    // Same FROM location
+                    if (
+                        routeFrom ===
+                        fromLocation
+                    ) {
+
+
+                        const timeInput =
+                            route.querySelector(
+                                ".routeTime"
+                            );
+
+
+                        if (timeInput) {
+
+                            timeInput.value =
+                                time;
+
+                        }
+
+                    }
+
+                }
+            );
+
+    }
+);
+
+
+
+// =====================================================
+// UPDATE FROM LOCATION WHEN USER EDITS IT
+// =====================================================
+
+document.addEventListener(
+    "input",
+    function (e) {
+
+        if (
+            e.target.classList.contains(
+                "fromInput"
+            )
+        ) {
+
+            const row =
+                e.target.closest(
+                    ".routeRow"
+                );
+
+
+            if (row) {
+
+                row.dataset.from =
+                    e.target.value.trim();
+
+            }
+
+        }
+
+    }
+);
+
+
+
+// =====================================================
+// REMOVE ROUTE
+// =====================================================
+
+document.addEventListener(
+    "click",
+    function (e) {
+
+
+        if (
+            e.target.closest(
+                ".removeRoute"
+            )
+        ) {
+
+
+            const rows =
+                document.querySelectorAll(
+                    ".routeRow"
+                );
+
+
+            // Keep minimum one route
+            if (rows.length === 1) {
+
+                alert(
+                    "At least one route segment is required."
+                );
+
+                return;
+
+            }
+
+
+            e.target
+                .closest(
+                    ".routeRow"
+                )
+                .remove();
+
+        }
+
+    }
+);
+
+
+
+// =====================================================
+// INITIALIZE
+// =====================================================
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        updateRouteData();
+
+    }
+);
 
 </script>

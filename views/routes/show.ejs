@@ -175,7 +175,94 @@ required
 
 >
 
+<div class="mb-3">
+
+    <label class="form-label fw-bold">
+        <i class="bi bi-geo-alt-fill"></i>
+        Pickup Location
+    </label>
+
+    <div class="input-group">
+
+        <input
+            type="text"
+            name="pickupLocation"
+            id="pickupLocation"
+            class="form-control"
+            placeholder="Enter exact pickup location"
+            required
+        >
+
+        <a
+            href="https://www.google.com/maps"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="btn btn-primary">
+
+            <i class="bi bi-google"></i>
+            Choose on Map
+
+        </a>
+
+    </div>
+
+    <small class="text-muted">
+        Open Google Maps, find your exact pickup place,
+        then copy the place name/address and paste it here.
+    </small>
+
 </div>
+
+
+<script>
+
+const pickupInput =
+    document.getElementById("pickupLocation");
+
+const mapSearchBtn =
+    document.getElementById("mapSearchBtn");
+
+
+pickupInput.addEventListener(
+    "input",
+    function () {
+
+        const location =
+            pickupInput.value.trim();
+
+
+        if (!location) {
+
+            mapSearchBtn.href = "#";
+
+            mapSearchBtn.classList.add(
+                "disabled"
+            );
+
+            return;
+
+        }
+
+
+        const searchLocation =
+            encodeURIComponent(
+                location + ", Sopore, India"
+            );
+
+
+        mapSearchBtn.href =
+            "https://www.google.com/maps/search/?api=1&query="
+            + searchLocation;
+
+
+        mapSearchBtn.classList.remove(
+            "disabled"
+        );
+
+    }
+);
+
+</script>
 
 <p>
 Total Fare:
@@ -239,6 +326,6 @@ Route is not active for booking
 
 </div>
 
-</div>
 
-</div>
+
+

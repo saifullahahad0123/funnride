@@ -612,6 +612,7 @@ console.log("Total Earnings:", totalEarnings);
 res.render(
 "driver/dashboard.ejs",
 {
+currentUser: req.user,
 routes,
 totalEarnings,
 notifications
@@ -1541,6 +1542,144 @@ res.redirect(
 
 
 
+app.post(
+    "/routes",
+    isLoggedIn,
+    async (req, res) => {
+
+        try {
+
+            // Get stops created from the map
+            const mapStops = JSON.parse(
+                req.body.mapStops || "[]"
+            );
+
+
+            // At least 2 locations required
+            if (mapStops.length < 2) {
+
+                req.flash(
+                    "error",
+                    "Please add at least 2 route locations."
+                );
+
+                return res.redirect(
+                    "/routes/new"
+                );
+            }
+
+
+            // Convert map stops into database stops
+            const stops = mapStops.map(stop => ({
+
+                name: stop.name,
+
+                latitude: Number(
+                    stop.latitude
+                ),
+
+                longitude: Number(
+                    stop.longitude
+                ),
+
+                fare: 0,
+
+                arrivalTime: ""
+
+            }));
+
+
+            // Check duplicate active/waiting route
+            const exists = await Route.findOne({
+
+                driver: req.user._id,
+
+                vehicleNumber:
+                    req.body.vehicleNumber,
+
+                status: {
+                    $in: [
+                        "waiting",
+                        "active"
+                    ]
+                }
+
+            });
+
+
+            if (exists) {
+
+                req.flash(
+                    "error",
+                    "This route already exists for this vehicle."
+                );
+
+                return res.redirect(
+                    "/driver/dashboard"
+                );
+            }
+
+
+            // Create route
+            const route = new Route({
+
+                driver: req.user._id,
+
+                vehicleType:
+                    req.body.vehicleType,
+
+                vehicleNumber:
+                    req.body.vehicleNumber,
+
+                contactNumber:
+                    req.body.contactNumber,
+
+                totalSeats:
+                    Number(req.body.totalSeats),
+
+                availableSeats:
+                    Number(req.body.totalSeats),
+
+                stops: stops
+
+            });
+
+
+            await route.save();
+
+
+            req.flash(
+                "success",
+                "Route Added Successfully"
+            );
+
+
+            res.redirect(
+                "/driver/dashboard"
+            );
+
+
+        } catch (error) {
+
+            console.log(
+                "Route creation error:",
+                error
+            );
+
+            req.flash(
+                "error",
+                "Unable to create route."
+            );
+
+            res.redirect(
+                "/routes/new"
+            );
+
+        }
+
+    }
+);
+
 
 
 
@@ -1666,182 +1805,256 @@ to
 });
 
 
-app.get("/locations", async (req, res) => {
-
-    const keyword = req.query.q || "";
-
-    if (!keyword) return res.json([]);
-
-    const routes = await Route.find({}, "stops");
-
-    const locations = new Set();
-
-    routes.forEach(route => {
-
-        route.stops.forEach(stop => {
-
-            locations.add(stop.from);
-
-            locations.add(stop.to);
-
-        });
-
-    });
-
-    const result = [...locations].filter(location =>
-
-        location.toLowerCase().startsWith(
-            keyword.toLowerCase()
-        )
-
-    );
-
-    res.json(result);
-
-});
 
 
 
 app.post(
-"/routes/:id/book",
-isLoggedIn,
-async(req,res)=>{
+    "/routes/:id/book",
+    isLoggedIn,
+    async (req, res) => {
 
-try{
+        try {
 
-const route = await Route.findById(req.params.id);
 
-if(!route){
+            const route =
+                await Route.findById(
+                    req.params.id
+                );
 
-req.flash("error","Route not found");
 
-return res.redirect("/");
+            if (!route) {
 
-}
+                req.flash(
+                    "error",
+                    "Route not found"
+                );
 
-const seats = parseInt(req.body.seatsBooked);
+                return res.redirect("/");
 
-if(seats > route.availableSeats){
+            }
 
-req.flash(
-"error",
-`Only ${route.availableSeats} seat(s) available`
+
+
+            const seats =
+                parseInt(
+                    req.body.seatsBooked
+                );
+
+
+            if (
+                seats >
+                route.availableSeats
+            ) {
+
+                req.flash(
+                    "error",
+                    `Only ${route.availableSeats} seat(s) available`
+                );
+
+                return res.redirect(
+                    `/routes/${route._id}?from=${req.body.from}&to=${req.body.to}`
+                );
+
+            }
+
+            const selectedStop =
+                route.stops.find(
+                    stop =>
+
+                        stop.from
+                            .trim()
+                            .toLowerCase() ===
+                        req.body.from
+                            .trim()
+                            .toLowerCase()
+
+                        &&
+
+                        stop.to
+                            .trim()
+                            .toLowerCase() ===
+                        req.body.to
+                            .trim()
+                            .toLowerCase()
+                );
+
+
+            if (!selectedStop) {
+
+                req.flash(
+                    "error",
+                    "Invalid Route Selected"
+                );
+
+                return res.redirect(
+                    `/routes/${route._id}`
+                );
+
+            }
+
+            const fare =
+                Number(
+                    selectedStop.fare
+                );
+
+
+            const totalAmount =
+                fare * seats;
+
+
+
+            route.availableSeats -= seats;
+
+            await route.save();
+
+
+
+            const arrivalTime =
+                selectedStop.arrivalTime;
+
+
+
+            const booking =
+                new Booking({
+
+                    passenger:
+                        req.user._id,
+
+                    driver:
+                        route.driver,
+
+                    route:
+                        route._id,
+
+                    pickupLocation:
+                        req.body.pickupLocation,
+
+                    passengerName:
+                        req.body.passengerName,
+
+                    phoneNumber:
+                        req.body.phoneNumber,
+
+                    seatsBooked:
+                        seats,
+
+                    arrivalTime:
+                        arrivalTime,
+
+                    fromPlace:
+                        req.body.from,
+
+                    toPlace:
+                        req.body.to,
+
+                    totalAmount:
+                        totalAmount,
+
+                    status:
+                        "confirmed"
+
+                });
+
+
+            await booking.save();
+
+
+
+            const notification =
+                await Notification.create({
+
+                    user:
+                        route.driver,
+
+                    passengerName:
+                        req.body.passengerName,
+
+                    passengerPhone:
+                        req.body.phoneNumber,
+
+                    pickupLocation:
+                        req.body.pickupLocation,  
+
+                    fromCity:
+                        req.body.from,
+
+                    toCity:
+                        req.body.to,
+
+                    seatsBooked:
+                        seats,
+
+                    arrivalTime:
+                        arrivalTime,
+
+                    amount:
+                        totalAmount,
+
+                    message:
+    `${req.body.passengerName} booked ${seats} seat(s) from ${req.body.from} to ${req.body.to}. Pickup: ${req.body.pickupLocation}`
+
+                });
+
+
+        console.log(
+    "🔔 Sending notification to driver:",
+    route.driver.toString()
 );
 
-return res.redirect(
-`/routes/${route._id}?from=${req.body.from}&to=${req.body.to}`
+io.to(
+    route.driver.toString()
+).emit(
+    "newNotification",
+    {
+
+        notificationId:
+            notification._id.toString(),
+
+        title:
+            "New Booking",
+
+        message:
+            notification.message
+
+    }
 );
 
-}
-
-const selectedStop = route.stops.find(
-stop =>
-stop.from.trim().toLowerCase() === req.body.from.trim().toLowerCase() &&
-stop.to.trim().toLowerCase() === req.body.to.trim().toLowerCase()
+console.log(
+    "✅ Socket notification emitted"
 );
 
-if(!selectedStop){
 
-req.flash(
-"error",
-"Invalid Route Selected"
+            req.flash(
+                "success",
+                "Seat Booked Successfully"
+            );
+
+
+            res.redirect(
+                "/my-bookings"
+            );
+
+
+        } catch (err) {
+
+            console.log(
+                "BOOKING ERROR:",
+                err
+            );
+
+
+            req.flash(
+                "error",
+                "Booking Failed"
+            );
+
+
+            res.redirect("/");
+
+        }
+
+    }
 );
-
-return res.redirect(
-`/routes/${route._id}`
-);
-
-}
-
-const fare = Number(selectedStop.fare);
-
-
-
-const totalAmount = fare * seats;
-
-
-route.availableSeats -= seats;
-
-await route.save();
-
-const arrivalTime =
-selectedStop.arrivalTime;
-
-const booking = new Booking({
-
-passenger: req.user._id,
-driver: route.driver,
-route: route._id,
-
-passengerName: req.body.passengerName,
-
-phoneNumber: req.body.phoneNumber,
-
-seatsBooked: seats,
-
-arrivalTime:arrivalTime,
-
-fromPlace: req.body.from,
-
-toPlace: req.body.to,
-
-totalAmount: totalAmount,
-
-status: "confirmed"
-
-});
-
-await booking.save();
-
-
-
-await Notification.create({
-
-user: route.driver,
-
-passengerName: req.body.passengerName,
-
-passengerPhone: req.body.phoneNumber,
-
-fromCity: req.body.from,
-
-toCity: req.body.to,
-
-seatsBooked: seats,
-
-arrivalTime:arrivalTime,
-
-
-amount: totalAmount,
-
-message:
-`${req.body.passengerName} booked ${seats} seat(s) from ${req.body.from} to ${req.body.to}`
-
-});
-
-
-
-req.flash(
-"success",
-"Seat Booked Successfully"
-);
-
-res.redirect("/my-bookings");
-
-}catch(err){
-
-console.log(err);
-
-req.flash(
-"error",
-"Booking Failed"
-);
-
-res.redirect("/");
-
-}
-
-});
 
 
 
@@ -2397,100 +2610,126 @@ res.redirect("/driver/dashboard");
 });
 
 io.on(
-
     "connection",
-
     (socket) => {
 
-
-
-
         console.log(
-            "User Connected"
+            "User Connected:",
+            socket.id
         );
 
-        socket.on("join", (userId) => {
 
-        socket.join(userId);
-
-        console.log("User joined room:", userId);
-
-    });
-  
-        // Chat Messages
 
         socket.on(
+            "join",
+            (userId) => {
 
-            "send-message",
+                if (!userId) {
+                    return;
+                }
 
-            async (data) => {
-
-                const message =
-                new Message({
-
-                    sender:
-                    data.userId,
-
-                    trip:
-                    data.tripId,
-
-                    text:
-                    data.message
-
-                });
-
-                await message.save();
-
-                const user =
-                await User.findById(
-                    data.userId
+                socket.join(
+                    userId.toString()
                 );
 
-                io.emit(
-
-                    "receive-message",
-
-                    {
-
-                        username:
-                        user.username,
-
-                        message:
-                        data.message,
-
-                        userId:
-                        data.userId
-
-                    }
-
+                console.log(
+                    "User joined room:",
+                    userId.toString()
                 );
 
             }
-
         );
 
 
-       
+        socket.on(
+            "send-message",
+            async (data) => {
+
+                try {
+
+                    const message =
+                        new Message({
+
+                            sender:
+                                data.userId,
+
+                            trip:
+                                data.tripId,
+
+                            text:
+                                data.message
+
+                        });
+
+
+                    await message.save();
+
+
+                    const user =
+                        await User.findById(
+                            data.userId
+                        );
+
+
+                    io.emit(
+                        "receive-message",
+                        {
+
+                            username:
+                                user.username,
+
+                            message:
+                                data.message,
+
+                            userId:
+                                data.userId
+
+                        }
+                    );
+
+
+                } catch (error) {
+
+                    console.error(
+                        "Chat error:",
+                        error
+                    );
+
+                }
+
+            }
+        );
 
         socket.on(
+            "passengerLocation",
+            (location) => {
 
+                console.log(
+                    "Passenger location:",
+                    location
+                );
+
+            
+
+            }
+        );
+
+        socket.on(
             "disconnect",
-
             () => {
 
                 console.log(
-                    "User Disconnected"
+                    "User Disconnected:",
+                    socket.id
                 );
 
             }
-
         );
 
     }
-
 );
 
-// Server
+
 server.listen(
 
     3000,
