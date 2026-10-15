@@ -1,58 +1,49 @@
 const mongoose = require("mongoose");
 
 const stopSchema = new mongoose.Schema({
-
-    from:String,
-
-    to:String,
-
-    fare:Number,
-
-    arrivalTime:String
-
+    from: String,
+    to: String,
+    fare: Number,
+    arrivalTime: String
 });
-
 
 const routeSchema = new mongoose.Schema({
-                                                                                
-    driver:{
-        type:mongoose.Schema.Types.ObjectId,
-        ref:"User"
+
+    driver: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User"
     },
 
-    vehicleType:String,
+    vehicleType: String,
 
-    vehicleNumber:String,
+    vehicleNumber: String,
 
-    contactNumber:String,
+    contactNumber: String,
 
-    totalSeats:Number,
+    totalSeats: Number,
 
-    availableSeats:Number,
+    availableSeats: Number,
 
-status:{
+    status: {
+        type: String,
+        enum: [
+            "waiting",
+            "active",
+            "completed",
+            "cancelled"
+        ],
+        default: "waiting"
+    },
 
-type:String,
+    isDeleted: {
+        type: Boolean,
+        default: false
+    },
 
-enum:[
-"waiting",
-"active",
-"completed",
-"cancelled"
-],
+    stops: [stopSchema]
 
-default:"waiting"
-
-},
-
-    stops:[stopSchema]
-
-},{
-    timestamps:true
+}, {
+    timestamps: true
 });
 
-module.exports =
-mongoose.model(
-    "Route",
-    routeSchema
-);
+module.exports = mongoose.model("Route", routeSchema);

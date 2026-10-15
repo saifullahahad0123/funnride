@@ -251,12 +251,16 @@ class="btn btn-secondary btn-sm"
 <i class="bi bi-x-circle-fill"></i> Cancel
 </a>
 
-<a
-href="/routes/<%= route._id %>/activate"
-class="btn btn-primary btn-sm"
->
-<i class="bi bi-arrow-clockwise"></i> Reopen
-</a>
+<% if (route.status === "completed" || route.status === "cancelled") { %>
+
+    <a
+        href="/routes/<%= route._id %>/activate"
+        class="btn btn-primary btn-sm"
+    >
+        <i class="bi bi-arrow-clockwise"></i> Reopen
+    </a>
+
+<% } %>
 
 <form
 action="/routes/<%= route._id %>?_method=DELETE"

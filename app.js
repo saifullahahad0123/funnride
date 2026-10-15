@@ -533,95 +533,92 @@ res.redirect(
 
 
 app.get(
-"/driver/dashboard",
-isLoggedIn,
-isDriver,
-async(req,res)=>{
+    "/driver/dashboard",
+    isLoggedIn,
+    isDriver,
+    async (req, res) => {
+        try {
+            // 1. Get ALL routes, including deleted routes.
+            const allDriverRoutes = await Route.find({
+                driver: req.user._id
+            });
 
-const routes = await Route.find({
-driver:req.user._id
-});
+            // 2. Display only routes that have not been deleted.
+            const routes = allDriverRoutes.filter(
+                route => route.isDeleted !== true
+            );
 
-const routeIds = routes.map(
-route => route._id
+            // 3. Get IDs of ALL routes for earnings calculations.
+            const routeIds = allDriverRoutes.map(
+                route => route._id
+            );
+
+            // 4. Find bookings associated with these routes.
+            const bookings = await Booking.find({
+                route: { $in: routeIds }
+            });
+
+            // 5. Get notifications.
+            const notifications = await Notification.find({
+                user: req.user._id
+            }).sort({
+                createdAt: -1
+            });
+
+            // 6. Calculate earnings from completed bookings only.
+            const earnings = await Booking.aggregate([
+                {
+                    $match: {
+                        route: { $in: routeIds },
+                        status: "completed"
+                    }
+                },
+                {
+                    $group: {
+                        _id: null,
+                        total: {
+                            $sum: "$totalAmount"
+                        }
+                    }
+                }
+            ]);
+
+            // 7. Get total earnings.
+            const totalEarnings =
+                earnings.length > 0
+                    ? earnings[0].total
+                    : 0;
+
+            // 8. Debug information.
+            console.log("All Route IDs:", routeIds);
+            console.log("Visible Routes:", routes.length);
+            console.log("Completed Bookings:", earnings);
+            console.log("Total Earnings:", totalEarnings);
+
+            // 9. Render dashboard.
+            res.render("driver/dashboard.ejs", {
+                currentUser: req.user,
+                routes,
+                bookings,
+                totalEarnings,
+                notifications
+            });
+
+        } catch (error) {
+            console.error(
+                "Driver Dashboard Error:",
+                error
+            );
+
+            req.flash(
+                "error",
+                "Unable to load driver dashboard"
+            );
+
+            res.redirect("/");
+        }
+    }
 );
-
-const bookings = await Booking.find({
-route: { $in: routeIds }
-});
-
-const notifications =
-await Notification.find({
-user:req.user._id
-})
-.sort({
-createdAt:-1
-});
-
-// Driver Earnings (Only Completed Bookings)
-
-const earnings = await Booking.aggregate([
-
-{
-$match:{
-
-route:{ $in: routeIds },
-
-status:"completed"
-
-}
-},
-
-{
-$group:{
-
-_id:null,
-
-total:{
-$sum:"$totalAmount"
-}
-
-}
-
-}
-
-]);
-
-const totalEarnings =
-earnings.length > 0
-?
-earnings[0].total
-:
-0;
-
-console.log("Route IDs:", routeIds);
-
-console.log("Completed Bookings:",
-await Booking.find({
-
-route:{ $in: routeIds },
-
-status:"completed"
-
-}));
-
-console.log("Total Earnings:", totalEarnings);
-
-
-
-res.render(
-"driver/dashboard.ejs",
-{
-currentUser: req.user,
-routes,
-totalEarnings,
-notifications
-}
-);
-
-});
-
-
 
 
 app.post(
@@ -1748,61 +1745,59 @@ try {
 });
 
 
-app.get("/search-route", async(req,res)=>{
+app.get("/search-route", async (req, res) => {
+    try {
+        const from = (req.query.from || "").trim();
+        const to = (req.query.to || "").trim();
 
-const from = req.query.from;
-const to = req.query.to;
+        // Validate the search inputs
+        if (!from || !to) {
+            return res.status(400).send("Please enter both starting location and destination.");
+        }
 
-const routes = await Route.find({
-status:"active",
-availableSeats: { $gt: 0 }
+        // Find active routes that have available seats
+        const routes = await Route.find({
+            status: "active",
+            availableSeats: { $gt: 0 },
+            isDeleted: { $ne: true }
+        });
+
+        const results = [];
+
+        for (const route of routes) {
+            const segment = (route.stops || []).find(s =>
+                (s.from || "").trim().toLowerCase() === from.toLowerCase() &&
+                (s.to || "").trim().toLowerCase() === to.toLowerCase()
+            );
+
+            if (segment) {
+                results.push({
+                    routeId: route._id,
+                    vehicleType: route.vehicleType,
+                    vehicleNumber: route.vehicleNumber,
+                    contactNumber: route.contactNumber,
+                    availableSeats: route.availableSeats,
+                    from: segment.from,
+                    to: segment.to,
+                    fare: segment.fare,
+                    time: segment.arrivalTime
+                });
+            }
+        }
+
+        res.render("routes/search.ejs", {
+            results,
+            from,
+            to
+        });
+
+    } catch (error) {
+        console.error("Route search error:", error);
+        res.status(500).send("Something went wrong while searching for routes.");
+    }
 });
 
-let results = [];
 
-for(const route of routes){
-
-const segment = route.stops.find(
-s =>
-s.from.toLowerCase() === from.toLowerCase() &&
-s.to.toLowerCase() === to.toLowerCase()
-);
-
-if(segment){
-
-results.push({
-
-routeId: route._id,
-
-vehicleType: route.vehicleType,
-
-vehicleNumber: route.vehicleNumber,
-
-contactNumber: route.contactNumber,
-
-availableSeats: route.availableSeats,
-
-from: segment.from,
-
-to: segment.to,
-
-fare: segment.fare,
-
-time: segment.arrivalTime
-
-});
-
-}
-
-}
-
-res.render("routes/search.ejs",{
-results,
-from,
-to
-});
-
-});
 
 
 
@@ -2073,44 +2068,42 @@ res.render("terms");
 
 
 app.delete(
-"/routes/:id",
-isLoggedIn,
-async(req,res)=>{
+    "/routes/:id",
+    isLoggedIn,
+    isDriver,
+    async (req, res) => {
+        try {
+            const route = await Route.findOne({
+                _id: req.params.id,
+                driver: req.user._id,
+                isDeleted: { $ne: true }
+            });
 
-const route =
-await Route.findById(
-req.params.id
+            if (!route) {
+                req.flash("error", "Route not found");
+                return res.redirect("/driver/dashboard");
+            }
+
+            // Hide the route instead of permanently deleting it.
+            await Route.findByIdAndUpdate(route._id, {
+                $set: { isDeleted: true }
+            });
+
+            req.flash(
+                "success",
+                "Route deleted successfully. Your previous earnings are محفوظ."
+            );
+
+            res.redirect("/driver/dashboard");
+
+        } catch (error) {
+            console.error("Route deletion error:", error);
+
+            req.flash("error", "Unable to delete route");
+            res.redirect("/driver/dashboard");
+        }
+    }
 );
-
-if(!route){
-
-req.flash(
-"error",
-"Route not found"
-);
-
-return res.redirect(
-"/driver/dashboard"
-);
-
-}
-
-await Route.findByIdAndDelete(
-req.params.id
-);
-
-req.flash(
-"success",
-"Route Deleted Successfully"
-);
-
-res.redirect(
-"/driver/dashboard"
-);
-
-});
-
-
 
 
 app.get(
@@ -2171,6 +2164,80 @@ res.render(
 );
 
 });
+
+
+
+
+
+
+
+// ======================================
+// LOCATION SUGGESTIONS API
+// ======================================
+
+app.get("/api/locations", async (req, res) => {
+    try {
+        const search = (req.query.q || "").trim().toLowerCase();
+
+        // Retrieve routes containing stops.
+        // Exclude routes marked as deleted.
+        const routes = await Route.find({
+            "stops.0": { $exists: true },
+            isDeleted: { $ne: true }
+        })
+            .select("stops.from stops.to")
+            .lean();
+
+        // Store unique locations.
+        const locationSet = new Map();
+
+        for (const route of routes) {
+            for (const stop of route.stops || []) {
+
+                if (stop.from && stop.from.trim()) {
+                    const location = stop.from.trim();
+
+                    locationSet.set(
+                        location.toLowerCase(),
+                        location
+                    );
+                }
+
+                if (stop.to && stop.to.trim()) {
+                    const location = stop.to.trim();
+
+                    locationSet.set(
+                        location.toLowerCase(),
+                        location
+                    );
+                }
+            }
+        }
+
+        // Search matching locations.
+        const locations = [...locationSet.values()]
+            .filter(location =>
+                location.toLowerCase().includes(search)
+            )
+            .sort((a, b) => a.localeCompare(b))
+            .slice(0, 10);
+
+        res.json(locations);
+
+    } catch (error) {
+        console.error("Location API Error:", error);
+
+        res.status(500).json({
+            error: "Unable to retrieve locations"
+        });
+    }
+});
+
+
+
+
+
+
 
 
 app.put("/routes/:id", async (req, res) => {
